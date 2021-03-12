@@ -2,18 +2,21 @@
 and send what's app notification"""
 from datetime import datetime, timedelta
 import os
+import json
 
 import pandas as pd
 import requests
 
 
 # PARAMS
-TWILIO_USERNAME = os.getenv("TWILIO_USERNAME")
-TWILIO_PASSWORD = os.getenv("TWILIO_PASSWORD")
-TWILIO_FROM_NUMBER = os.getenv("TWILIO_NUMBER")
+with open('secret.json') as creds:
+    CREDENTIALS = json.load(creds)
+TWILIO_USERNAME = CREDENTIALS.get("TWILIO_USERNAME")
+TWILIO_PASSWORD = CREDENTIALS.get("TWILIO_PASSWORD")
+TWILIO_FROM_NUMBER = CREDENTIALS.get("TWILIO_NUMBER")
 TWILIO_BASE_URL = "https://api.twilio.com/2010-04-01/Accounts/"
 TWILIO_ENDPOINT = TWILIO_BASE_URL + f'{TWILIO_USERNAME}/Messages.json'
-TO_NUMBER = os.getenv("TO_NUMBER")
+TO_NUMBER = CREDENTIALS.get("TO_NUMBER")
 COLUMNS = [
     'item.itemUrl',
     'item.saleUrl',
@@ -62,7 +65,7 @@ assert df.shape[0] > 0
 
 # Select the next hour sales
 start = datetime.now().replace(minute=0, second=0, microsecond=0)
-end = start + timedelta(hour=1)
+end = start + timedelta(hours=1)
 
 df = df[COLUMNS].sort_values('item.sale.datetime')
 df['item.sale.datetime'] = pd.to_datetime(
